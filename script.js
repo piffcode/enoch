@@ -6,7 +6,7 @@
  * SETUP INSTRUCTIONS:
  * 
  * 1. Replace "PASTE_YOUR_..." placeholders with actual URLs
- * 2. Update googleSheet.sheetId with your Google Sheet ID
+ * 2. Google Sheet is already configured
  * 3. Make sure your Google Sheet is public (Anyone with link = Viewer)
  * 4. Upload this file along with index.html to your web host
  * 
@@ -18,14 +18,14 @@
 
 const CONFIG = {
   // ==================================================
-  // STEP 1: ADD YOUR PAYPAL LINKS
+  // STEP 1: PAYPAL LINKS - ✅ CONFIGURED
   // ==================================================
   
   // General PayPal link (fallback if no category selected)
-  paypalGeneralUrl: "PASTE_YOUR_GENERAL_PAYPAL_LINK_HERE",
+  paypalGeneralUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS",
   
   // ==================================================
-  // STEP 2: ADD YOUR AMAZON LINKS
+  // STEP 2: ADD YOUR AMAZON LINKS - ⚠️ NEEDS CONFIGURATION
   // ==================================================
   
   amazonRegistryUrl: "PASTE_YOUR_AMAZON_REGISTRY_LINK_HERE",
@@ -34,69 +34,64 @@ const CONFIG = {
   strollerUrl: "PASTE_STROLLER_LINK_HERE",
 
   // ==================================================
-  // STEP 3: SET YOUR OVERALL GOAL
+  // STEP 3: OVERALL GOAL - ✅ CONFIGURED
   // ==================================================
   
   goalAmount: 2000,  // Overall fundraising goal
 
   // ==================================================
-  // STEP 4: ADD YOUR GOOGLE SHEET ID
+  // STEP 4: GOOGLE SHEET - ✅ CONFIGURED
   // ==================================================
   
-  // How to find your Sheet ID:
-  // Your Google Sheet URL looks like:
-  // https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9/edit
-  //                                      ^^^^ THIS PART ^^^^
-  // Copy just the ID part (between /d/ and /edit)
-  
   googleSheet: {
-    sheetId: "PASTE_PUBLIC_SHEET_ID_HERE",  // ← Replace this with your actual Sheet ID
-    tabName: "Sheet1"  // ← Change if your tab has a different name
+    sheetId: "163lYWDpbwmaPJnVRXPUXkKLhbPIQj96uvkox4mWTOa0",
+    tabName: "Sheet1"
   },
 
   // ==================================================
-  // STEP 5: ADD CATEGORY-SPECIFIC PAYPAL LINKS
+  // STEP 5: CATEGORY-SPECIFIC PAYPAL LINKS - ✅ CONFIGURED
   // ==================================================
   
-  // Each category can have its own PayPal link
-  // Create separate PayPal buttons for each category with the exact item names below
+  // NOTE: All categories currently use the same PayPal button.
+  // If you want different buttons for each category, create them in PayPal
+  // and replace the URLs below with the specific button URLs.
   
   careCategories: {
     housekeeper: { 
-      label: "House Keeper Gift Card",  // Must match PayPal item name
-      totalCell: "A3",  // Current total from Google Sheet
-      goalCell: "B3",   // Goal from Google Sheet
-      paypalUrl: "PASTE_HOUSEKEEPER_PAYPAL_LINK_HERE"
+      label: "House Keeper Gift Card",
+      totalCell: "A3",
+      goalCell: "B3",
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     },
     food: { 
       label: "Food Delivery Service", 
       totalCell: "A4", 
       goalCell: "B4",
-      paypalUrl: "PASTE_FOOD_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     },
     spa: { 
       label: "Mom Spa Date", 
       totalCell: "A5", 
       goalCell: "B5",
-      paypalUrl: "PASTE_SPA_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     },
     massage: { 
       label: "Baby Massage", 
       totalCell: "A6", 
       goalCell: "B6",
-      paypalUrl: "PASTE_MASSAGE_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     },
     swim: { 
       label: "Baby Swimming Class", 
       totalCell: "A7", 
       goalCell: "B7",
-      paypalUrl: "PASTE_SWIM_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     },
     sitter: { 
       label: "2 Hours Baby Sitter", 
       totalCell: "A8", 
       goalCell: "B8",
-      paypalUrl: "PASTE_SITTER_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
     }
   }
 };
@@ -339,6 +334,7 @@ async function init() {
   // ==================================================
   
   const paypalBtn = document.getElementById("paypalBtn");
+  const careDonateBtn = document.getElementById("careDonateBtn");
   const amazonRegistryBtn = document.getElementById("amazonRegistryBtn");
   const diapersLink = document.getElementById("diapersLink");
   const wipesLink = document.getElementById("wipesLink");
@@ -350,11 +346,18 @@ async function init() {
   if (strollerLink) strollerLink.href = CONFIG.strollerUrl;
 
   // ==================================================
-  // PayPal button click handler
+  // PayPal button click handlers
   // ==================================================
   
   if (paypalBtn) {
     paypalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showThankYouModal();
+    });
+  }
+
+  if (careDonateBtn) {
+    careDonateBtn.addEventListener("click", (e) => {
       e.preventDefault();
       showThankYouModal();
     });
