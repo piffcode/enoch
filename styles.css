@@ -1,250 +1,233 @@
-:root{
-  --bg: #0b0b0f;
-  --card: #12121a;
-  --text: #f3f3f6;
-  --muted: #b7b7c3;
-  --border: rgba(255,255,255,.10);
-  --shadow: 0 20px 60px rgba(0,0,0,.35);
-  --radius: 18px;
-  --accent: #7c5cff;
+/**
+ * EDIT THESE LINKS + SHEET ID
+ * - PayPal: single checkout link
+ * - Amazon registry link
+ * - Diapers/wipes/stroller links
+ * - Google Sheet ID (published)
+ */
+
+const CONFIG = {
+  paypalCheckoutUrl: "PASTE_YOUR_PAYPAL_CHECKOUT_LINK_HERE",
+  amazonRegistryUrl: "PASTE_YOUR_AMAZON_REGISTRY_LINK_HERE",
+
+  diapersUrl: "PASTE_DIAPERS_LINK_HERE",
+  wipesUrl: "PASTE_WIPES_LINK_HERE",
+  strollerUrl: "PASTE_STROLLER_LINK_HERE",
+
+  // Overall tracker goal
+  goalAmount: 2000,
+
+  // Google Sheet source (must be published / public)
+  googleSheet: {
+    sheetId: "PASTE_PUBLIC_SHEET_ID_HERE",
+    tabName: "Sheet1"
+  },
+
+  // Category mapping to sheet cells (totals in A3..A8, optional goals in B3..B8)
+  careCategories: {
+    housekeeper: { label: "House Keeper Gift Card", totalCell: "A3", goalCell: "B3" },
+    food:        { label: "Food Delivery Service",  totalCell: "A4", goalCell: "B4" },
+    spa:         { label: "Mom Spa Date",           totalCell: "A5", goalCell: "B5" },
+    massage:     { label: "Baby Massage",           totalCell: "A6", goalCell: "B6" },
+    swim:        { label: "Baby Swimming Class",    totalCell: "A7", goalCell: "B7" },
+    sitter:      { label: "2 Hours Baby Sitter",    totalCell: "A8", goalCell: "B8" }
+  }
+};
+
+// ---------- Helpers ----------
+function formatUSD(amount) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(amount);
 }
 
-*{ box-sizing: border-box; }
-html,body{ height: 100%; }
-
-body{
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  color: var(--text);
-  background:
-    radial-gradient(1200px 700px at 20% 10%, rgba(124,92,255,.18), transparent 60%),
-    radial-gradient(900px 500px at 90% 20%, rgba(255,255,255,.08), transparent 60%),
-    var(--bg);
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
 }
 
-.wrap{
-  width: min(980px, 92vw);
-  margin: 0 auto;
-  padding: 48px 0 70px;
+// ---------- Overall progress bar ----------
+function setProgress(total) {
+  const goal = CONFIG.goalAmount;
+
+  const trackerText = document.getElementById("trackerText");
+  const trackerGoal = document.getElementById("trackerGoal");
+  const trackerNote = document.getElementById("trackerNote");
+  const progressFill = document.getElementById("progressFill");
+  const progressContainer = document.querySelector(".progress");
+
+  const pct = goal > 0 ? (total / goal) * 100 : 0;
+  const pctClamped = clamp(pct, 0, 100);
+
+  if (progressFill) progressFill.style.width = `${pctClamped}%`;
+  if (progressContainer) progressContainer.setAttribute("aria-valuenow", String(Math.round(pctClamped)));
+
+  if (trackerText) trackerText.textContent = `${formatUSD(total)} has been given so far. Thank you so much. We love you!`;
+  if (trackerGoal) trackerGoal.textContent = goal ? `Goal: ${formatUSD(goal)}` : "";
+  if (trackerNote) {
+    trackerNote.textContent = total >= goal && goal > 0
+      ? "We hit the goal. Seriously… thank you."
+      : "Thank you so much. We love you!";
+  }
 }
 
-.header{
-  text-align: center;
-  margin-bottom: 22px;
+// ---------- Google Sheet fetch ----------
+async function fetchSheetA1toB8() {
+  const { sheetId, tabName } = CONFIG.googleSheet;
+
+  // Reads a rectangle A1:B8. We'll map it into {A1:..., B3:...}
+  const range = "A1:B8";
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(tabName)}&range=${encodeURIComponent(range)}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Could not fetch sheet data");
+
+  const text = await res.text();
+  const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+  const data = JSON.parse(jsonText);
+
+  const rows = data?.table?.rows || [];
+  const out = {};
+
+  for (let r = 0; r < rows.length; r++) {
+    const row = rows[r]?.c || [];
+    const aVal = row[0]?.v;
+    const bVal = row[1]?.v;
+
+    const rowNum = r + 1; // range starts at row 1
+    out[`A${rowNum}`] = Number(aVal ?? 0) || 0;
+    out[`B${rowNum}`] = Number(bVal ?? 0) || 0;
+  }
+
+  return out;
 }
 
-.eyebrow{
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-size: 12px;
-  margin: 0 0 10px;
+// ---------- Category UI ----------
+let selectedCategoryKey = null;
+
+function setSelectedCategory(key) {
+  selectedCategoryKey = key;
+
+  document.querySelectorAll(".care-choice").forEach(btn => {
+    btn.classList.toggle("selected", btn.dataset.key === key);
+  });
+
+  const labelEl = document.getElementById("selectedLabel");
+  if (labelEl) labelEl.textContent = CONFIG.careCategories[key]?.label || "None";
 }
 
-h1{
-  margin: 0 0 10px;
-  font-size: clamp(32px, 4vw, 52px);
+function renderCareCounters(values) {
+  for (const [key, meta] of Object.entries(CONFIG.careCategories)) {
+    const total = values[meta.totalCell] ?? 0;
+    const goal = values[meta.goalCell] ?? 0;
+
+    const amtEl = document.getElementById(`amt-${key}`);
+    const miniEl = document.getElementById(`mini-${key}`);
+
+    if (amtEl) {
+      amtEl.textContent = goal ? `${formatUSD(total)} / ${formatUSD(goal)}` : formatUSD(total);
+    }
+
+    if (miniEl) {
+      if (goal > 0) {
+        const pct = Math.min((total / goal) * 100, 100);
+        miniEl.textContent = pct >= 100 ? "Fully supported" : `${Math.round(pct)}% supported`;
+      } else {
+        miniEl.textContent = "Thank you for supporting";
+      }
+    }
+  }
 }
 
-.subhead{
-  margin: 0 auto;
-  max-width: 62ch;
-  color: var(--muted);
-  line-height: 1.5;
+// IMPROVEMENT 3: Thank you modal functions
+function showThankYouModal() {
+  const categoryName = selectedCategoryKey 
+    ? CONFIG.careCategories[selectedCategoryKey]?.label 
+    : "Baby Enoch";
+  
+  document.getElementById('modalCategory').textContent = categoryName;
+  document.getElementById('thankYouModal').classList.add('show');
+  
+  // After 2 seconds, proceed to PayPal
+  setTimeout(() => {
+    const paypalUrl = CONFIG.paypalCheckoutUrl;
+    if (paypalUrl && !paypalUrl.includes('PASTE_')) {
+      window.location.href = paypalUrl;
+    }
+    closeModal();
+  }, 2000);
 }
 
-.card{
-  background: rgba(18,18,26,.92);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow);
-  margin: 14px 0;
+function closeModal() {
+  document.getElementById('thankYouModal').classList.remove('show');
 }
 
-.card h2{
-  margin: 0 0 12px;
-  font-size: 18px;
-  letter-spacing: .01em;
+// ---------- Init ----------
+async function init() {
+  // Wire core links
+  const paypalBtn = document.getElementById("paypalBtn");
+  const amazonRegistryBtn = document.getElementById("amazonRegistryBtn");
+  const diapersLink = document.getElementById("diapersLink");
+  const wipesLink = document.getElementById("wipesLink");
+  const strollerLink = document.getElementById("strollerLink");
+
+  if (paypalBtn) paypalBtn.href = CONFIG.paypalCheckoutUrl;
+  if (amazonRegistryBtn) amazonRegistryBtn.href = CONFIG.amazonRegistryUrl;
+
+  if (diapersLink) diapersLink.href = CONFIG.diapersUrl;
+  if (wipesLink) wipesLink.href = CONFIG.wipesUrl;
+  if (strollerLink) strollerLink.href = CONFIG.strollerUrl;
+
+  // Guardrails for placeholders
+  if (paypalBtn && CONFIG.paypalCheckoutUrl.includes("PASTE_")) {
+    paypalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Paste your PayPal link into script.js (CONFIG.paypalCheckoutUrl).");
+    });
+  } else if (paypalBtn) {
+    // IMPROVEMENT 3: Show thank you modal when clicking PayPal
+    paypalBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      showThankYouModal();
+    });
+  }
+  
+  if (amazonRegistryBtn && CONFIG.amazonRegistryUrl.includes("PASTE_")) {
+    amazonRegistryBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Paste your Amazon registry link into script.js (CONFIG.amazonRegistryUrl).");
+    });
+  }
+
+  // Category selection click handlers
+  document.querySelectorAll(".care-choice").forEach(btn => {
+    btn.addEventListener("click", () => setSelectedCategory(btn.dataset.key));
+  });
+
+  // Default selection (feel free to change)
+  setSelectedCategory("food");
+
+  // Close modal when clicking overlay
+  document.getElementById('thankYouModal').addEventListener('click', (e) => {
+    if (e.target.id === 'thankYouModal') {
+      closeModal();
+    }
+  });
+
+  // Load totals from sheet
+  try {
+    const values = await fetchSheetA1toB8();
+
+    // Overall total is A1
+    setProgress(values.A1 || 0);
+
+    // Category totals A3..A8 and goals B3..B8
+    renderCareCounters(values);
+  } catch (err) {
+    console.error(err);
+    setProgress(0);
+  }
 }
 
-.card p{
-  margin: 10px 0;
-  line-height: 1.6;
-}
-
-.muted{ color: var(--muted); }
-
-.buttons{
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 14px;
-}
-
-.btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  color: var(--text);
-  text-decoration: none;
-  background: rgba(255,255,255,.04);
-  transition: transform .06s ease, background .2s ease, border-color .2s ease;
-  min-width: 170px;
-}
-
-.btn:hover{
-  background: rgba(255,255,255,.07);
-  border-color: rgba(255,255,255,.18);
-}
-
-.btn:active{ transform: translateY(1px); }
-
-.btn.primary{
-  background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(124,92,255,.55));
-  border-color: rgba(124,92,255,.55);
-}
-
-/* Overall tracker */
-.tracker{ margin-top: 8px; }
-
-.tracker-top{
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.tracker-text{ margin: 0; font-weight: 600; }
-.tracker-goal{ margin: 0; color: var(--muted); font-size: 14px; }
-
-.progress{
-  margin-top: 12px;
-  height: 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.10);
-  overflow: hidden;
-}
-
-.progress-fill{
-  height: 100%;
-  width: 0%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(124,92,255,.95), rgba(255,255,255,.20));
-  transition: width .6s ease;
-}
-
-.tracker-note{ margin: 12px 0 0; color: var(--muted); }
-
-/* Essentials grid */
-.grid{
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-@media (max-width: 760px){
-  .grid{ grid-template-columns: 1fr; }
-}
-
-.item{
-  display: block;
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.03);
-  text-decoration: none;
-  color: var(--text);
-  transition: background .2s ease, border-color .2s ease, transform .06s ease;
-}
-
-.item:hover{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.18);
-}
-
-.item:active{ transform: translateY(1px); }
-
-.item h3{ margin: 0 0 6px; font-size: 16px; }
-.item p{ margin: 0; color: var(--muted); }
-
-/* Care registry list */
-.care-list{
-  display: grid;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.care-choice{
-  width: 100%;
-  text-align: left;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,.03);
-  color: var(--text);
-  cursor: pointer;
-  transition: background .2s ease, border-color .2s ease, transform .06s ease;
-}
-
-.care-choice:hover{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.18);
-}
-
-.care-choice:active{ transform: translateY(1px); }
-
-.care-choice.selected{
-  border-color: rgba(124,92,255,.65);
-  background: rgba(124,92,255,.10);
-}
-
-.care-left h3{ margin: 0 0 6px; font-size: 15px; }
-
-.care-sub{
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.care-right{
-  text-align: right;
-  min-width: 160px;
-}
-
-.care-amount{
-  font-size: 14px;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.care-mini{
-  margin-top: 6px;
-  font-size: 12px;
-  color: rgba(255,255,255,.65);
-}
-
-.care-selected{
-  margin-top: 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(255,255,255,.02);
-}
-
-.footer{
-  text-align: center;
-  margin-top: 18px;
-  color: var(--muted);
-}
+init();
