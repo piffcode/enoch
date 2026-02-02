@@ -366,6 +366,22 @@ h1{
   background: var(--accent-light);
   font-size: 15px;
   text-align: center;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.care-donate{
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: all .3s ease;
+}
+
+.care-donate.show{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* Comments */
@@ -662,7 +678,12 @@ h1{
         </div>
 
         <div class="care-selected" id="careSelected" aria-live="polite">
-          <span class="muted">Selected:</span> <strong id="selectedLabel">Food Delivery Service</strong>
+          <div>
+            <span class="muted">Selected:</span> <strong id="selectedLabel">Food Delivery Service</strong>
+          </div>
+          <button class="btn primary care-donate" id="careDonateBtn" type="button">
+            Donate to this
+          </button>
         </div>
 
         <p class="muted" style="margin-top: 10px;">
@@ -737,6 +758,19 @@ h1{
 
       let selectedCategory = 'food';
 
+      const donateBtn = document.getElementById('careDonateBtn');
+
+      const openDonationFlow = () => {
+        const categoryName = labels[selectedCategory] || 'Baby Enoch';
+        document.getElementById('modalCategory').textContent = categoryName;
+        document.getElementById('thankYouModal').classList.add('show');
+
+        setTimeout(() => {
+          alert('This would redirect to your PayPal checkout with "' + categoryName + '" in the note!');
+          closeModal();
+        }, 2000);
+      };
+
       // Make the category buttons interactive
       document.querySelectorAll('.care-choice').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -744,27 +778,24 @@ h1{
           btn.classList.add('selected');
           selectedCategory = btn.dataset.key;
           document.getElementById('selectedLabel').textContent = labels[btn.dataset.key] || 'None';
+          if (donateBtn) {
+            donateBtn.textContent = `Donate for ${labels[btn.dataset.key] || 'this'}`;
+            donateBtn.classList.add('show');
+          }
         });
       });
 
       // Show thank you modal when PayPal button is clicked
       document.getElementById('paypalBtn').addEventListener('click', (e) => {
         e.preventDefault();
-        
-        // Update modal with selected category
-        const categoryName = labels[selectedCategory] || 'Baby Enoch';
-        document.getElementById('modalCategory').textContent = categoryName;
-        
-        // Show modal
-        document.getElementById('thankYouModal').classList.add('show');
-        
-        // After 2 seconds, redirect to actual PayPal (or handle the alert for demo)
-        setTimeout(() => {
-          // In production, this would be: window.location.href = paypalUrl;
-          alert('This would redirect to your PayPal checkout with "' + categoryName + '" in the note!');
-          closeModal();
-        }, 2000);
+        openDonationFlow();
       });
+
+      if (donateBtn) {
+        donateBtn.addEventListener('click', openDonationFlow);
+        donateBtn.classList.add('show');
+        donateBtn.textContent = `Donate for ${labels[selectedCategory]}`;
+      }
 
       // Close modal function
       function closeModal() {
