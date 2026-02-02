@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Baby Registry — Shaq & Catalina</title>
+    <meta name="description" content="Support Baby Enoch — registry + care fund." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <main class="wrap">
+      <header class="header">
+        <p class="eyebrow">Baby Registry</p>
+        <h1>Shaq & Catalina</h1>
+        <p class="subhead">A simple, love-first way to support Baby Enoch.</p>
+      </header>
+
+      <section class="card">
+        <h2>Why we’re doing it like this</h2>
+        <p>We wanted to keep this really simple and intentional.</p>
+        <p>
+          We don’t want a lot of things — because at the end of the day,
+          <strong>all a baby truly needs is love</strong>. And Enoch is already surrounded by so much of it.
+        </p>
+        <p>
+          Instead of receiving a lot of items all at once, we’re choosing to make thoughtful purchases
+          as we go — based on what Enoch actually needs, when he needs it.
+        </p>
+        <p>
+          Support that’s flexible allows us to do that with care and without excess.
+          No pressure at all — your love and presence in our lives already mean everything.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Overall support tracker</h2>
+
+        <div class="tracker">
+          <div class="tracker-top">
+            <p class="tracker-text" id="trackerText">Loading total…</p>
+            <p class="tracker-goal" id="trackerGoal"></p>
+          </div>
+
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+
+          <p class="tracker-note" id="trackerNote">Thank you so much. We love you!</p>
+        </div>
+
+        <div class="buttons">
+          <a class="btn primary" id="paypalBtn" href="#" target="_blank" rel="noreferrer">
+            Support on PayPal
+          </a>
+          <a class="btn" id="amazonRegistryBtn" href="#" target="_blank" rel="noreferrer">
+            Amazon Registry
+          </a>
+        </div>
+
+        <p class="muted" style="margin-top: 12px;">
+          If you want to support something specific, choose a category below before you click PayPal.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Care & Support Registry</h2>
+        <p class="muted">
+          Pick what you’d like to support. We’ll keep these totals updated as we go.
+        </p>
+
+        <div class="care-list" id="careList">
+          <button class="care-choice" data-key="housekeeper" type="button">
+            <div class="care-left">
+              <h3>House Keeper Gift Card</h3>
+              <p class="care-sub">Helps keep the home calm and functional.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-housekeeper">$0</div>
+              <div class="care-mini" id="mini-housekeeper"></div>
+            </div>
+          </button>
+
+          <button class="care-choice" data-key="food" type="button">
+            <div class="care-left">
+              <h3>Food Delivery Service</h3>
+              <p class="care-sub">Meals early on = less stress, more rest.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-food">$0</div>
+              <div class="care-mini" id="mini-food"></div>
+            </div>
+          </button>
+
+          <button class="care-choice" data-key="spa" type="button">
+            <div class="care-left">
+              <h3>Mom Spa Date</h3>
+              <p class="care-sub">A reset day for Catalina to feel cared for.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-spa">$0</div>
+              <div class="care-mini" id="mini-spa"></div>
+            </div>
+          </button>
+
+          <button class="care-choice" data-key="massage" type="button">
+            <div class="care-left">
+              <h3>Baby Massage</h3>
+              <p class="care-sub">Support for comfort and development.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-massage">$0</div>
+              <div class="care-mini" id="mini-massage"></div>
+            </div>
+          </button>
+
+          <button class="care-choice" data-key="swim" type="button">
+            <div class="care-left">
+              <h3>Baby Swimming Class</h3>
+              <p class="care-sub">Confidence + safety + joy in the water.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-swim">$0</div>
+              <div class="care-mini" id="mini-swim"></div>
+            </div>
+          </button>
+
+          <button class="care-choice" data-key="sitter" type="button">
+            <div class="care-left">
+              <h3>2 Hours Baby Sitter</h3>
+              <p class="care-sub">A little breathing room for rest and reset.</p>
+            </div>
+            <div class="care-right">
+              <div class="care-amount" id="amt-sitter">$0</div>
+              <div class="care-mini" id="mini-sitter"></div>
+            </div>
+          </button>
+        </div>
+
+        <div class="care-selected" id="careSelected" aria-live="polite">
+          <span class="muted">Selected:</span> <strong id="selectedLabel">None</strong>
+        </div>
+
+        <p class="muted" style="margin-top: 10px;">
+          Tip: When you donate on PayPal, you can put your selected category in the note if you want.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Essentials we actually want</h2>
+        <p class="muted">We kept this short on purpose.</p>
+
+        <div class="grid">
+          <a class="item" id="diapersLink" href="#" target="_blank" rel="noreferrer">
+            <h3>Diapers</h3>
+            <p>Grab a pack anytime.</p>
+          </a>
+
+          <a class="item" id="wipesLink" href="#" target="_blank" rel="noreferrer">
+            <h3>Wipes</h3>
+            <p>We’ll go through these nonstop.</p>
+          </a>
+
+          <a class="item" id="strollerLink" href="#" target="_blank" rel="noreferrer">
+            <h3>Stroller</h3>
+            <p>The one we chose for Enoch.</p>
+          </a>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>With love, <strong>Shaq & Catalina</strong></p>
+      </footer>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
