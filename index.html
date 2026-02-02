@@ -368,6 +368,75 @@ h1{
   text-align: center;
 }
 
+/* Comments */
+.comment-form{
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.comment-label{
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+
+.comment-input,
+.comment-textarea{
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: #fff;
+}
+
+.comment-textarea{
+  min-height: 120px;
+  resize: vertical;
+}
+
+.comment-submit{
+  width: fit-content;
+}
+
+.comment-list{
+  margin-top: 32px;
+  display: grid;
+  gap: 16px;
+}
+
+.comment-card{
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  background: var(--card);
+}
+
+.comment-card h4{
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.comment-card p{
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.comment-meta{
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .footer{
   text-align: center;
   margin-top: 80px;
@@ -623,6 +692,23 @@ h1{
         </div>
       </section>
 
+      <section class="card">
+        <h2>Leave a note</h2>
+        <p class="muted">Share a quick message or well-wish. These notes stay on this page.</p>
+
+        <form class="comment-form" id="commentForm">
+          <label class="comment-label" for="commentName">Name</label>
+          <input class="comment-input" id="commentName" name="commentName" type="text" maxlength="40" placeholder="Your name" required>
+
+          <label class="comment-label" for="commentMessage">Message</label>
+          <textarea class="comment-textarea" id="commentMessage" name="commentMessage" maxlength="280" placeholder="Write something sweet..." required></textarea>
+
+          <button class="btn primary comment-submit" type="submit">Post comment</button>
+        </form>
+
+        <div class="comment-list" id="commentList" aria-live="polite"></div>
+      </section>
+
       <footer class="footer">
         <p>With love, <strong>Shaq & Catalina</strong></p>
       </footer>
@@ -691,6 +777,79 @@ h1{
           closeModal();
         }
       });
+
+      const commentForm = document.getElementById('commentForm');
+      const commentList = document.getElementById('commentList');
+      const commentName = document.getElementById('commentName');
+      const commentMessage = document.getElementById('commentMessage');
+      const commentStorageKey = 'enoch-comments';
+
+      const loadComments = () => {
+        const stored = localStorage.getItem(commentStorageKey);
+        return stored ? JSON.parse(stored) : [];
+      };
+
+      const saveComments = (comments) => {
+        localStorage.setItem(commentStorageKey, JSON.stringify(comments));
+      };
+
+      const renderComments = () => {
+        const comments = loadComments();
+        commentList.innerHTML = '';
+        if (comments.length === 0) {
+          const empty = document.createElement('p');
+          empty.className = 'muted';
+          empty.textContent = 'Be the first to leave a note.';
+          commentList.appendChild(empty);
+          return;
+        }
+
+        comments.forEach((comment) => {
+          const card = document.createElement('div');
+          card.className = 'comment-card';
+
+          const name = document.createElement('h4');
+          name.textContent = comment.name;
+
+          const message = document.createElement('p');
+          message.textContent = comment.message;
+
+          const meta = document.createElement('div');
+          meta.className = 'comment-meta';
+          meta.textContent = comment.date;
+
+          card.appendChild(name);
+          card.appendChild(message);
+          card.appendChild(meta);
+          commentList.appendChild(card);
+        });
+      };
+
+      commentForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const name = commentName.value.trim();
+        const message = commentMessage.value.trim();
+
+        if (!name || !message) {
+          return;
+        }
+
+        const comments = loadComments();
+        comments.unshift({
+          name,
+          message,
+          date: new Date().toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          })
+        });
+        saveComments(comments.slice(0, 20));
+        commentForm.reset();
+        renderComments();
+      });
+
+      renderComments();
     </script>
   </body>
 </html>
