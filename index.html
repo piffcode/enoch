@@ -5,348 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Baby Registry — Shaq & Catalina</title>
     <meta name="description" content="Support Baby Enoch — registry + care fund." />
-    <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap');
-
-:root{
-  --bg: #f9f7f4;
-  --card: #ffffff;
-  --text: #2d2d2d;
-  --muted: #7a7a7a;
-  --border: rgba(220,200,190,.3);
-  --shadow: 0 4px 20px rgba(0,0,0,.06);
-  --radius: 2px;
-  --accent: #d4756c;
-  --accent-light: #f4e8e6;
-}
-
-*{ box-sizing: border-box; }
-html,body{ height: 100%; }
-
-body{
-  margin: 0;
-  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: var(--text);
-  background: var(--bg);
-  line-height: 1.7;
-  font-weight: 300;
-}
-
-.wrap{
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 80px 24px 100px;
-}
-
-.header{
-  text-align: center;
-  margin-bottom: 80px;
-  padding-bottom: 40px;
-  border-bottom: 1px solid var(--border);
-}
-
-.eyebrow{
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--accent);
-  font-size: 11px;
-  margin: 0 0 16px;
-  font-weight: 400;
-}
-
-h1{
-  margin: 0 0 20px;
-  font-size: clamp(42px, 6vw, 72px);
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight: 400;
-  color: var(--text);
-  letter-spacing: -.01em;
-  line-height: 1.1;
-}
-
-.subhead{
-  margin: 0 auto;
-  max-width: 560px;
-  color: var(--muted);
-  line-height: 1.8;
-  font-size: 17px;
-  font-weight: 300;
-}
-
-.card{
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 48px;
-  box-shadow: var(--shadow);
-  margin: 40px 0;
-}
-
-.card h2{
-  margin: 0 0 24px;
-  font-size: 28px;
-  font-family: 'Playfair Display', Georgia, serif;
-  letter-spacing: -.01em;
-  color: var(--text);
-  font-weight: 400;
-  text-align: center;
-}
-
-.card p{
-  margin: 16px 0;
-  line-height: 1.8;
-  font-weight: 300;
-}
-
-.muted{ color: var(--muted); }
-
-.buttons{
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 32px;
-  justify-content: center;
-}
-
-.btn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 32px;
-  border-radius: var(--radius);
-  border: 1px solid var(--text);
-  color: var(--text);
-  text-decoration: none;
-  background: transparent;
-  transition: all .3s ease;
-  min-width: 200px;
-  font-weight: 400;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-
-.btn:hover{
-  background: var(--text);
-  color: white;
-}
-
-.btn.primary{
-  background: var(--accent);
-  border-color: var(--accent);
-  color: white;
-}
-
-.btn.primary:hover{
-  background: #c06459;
-  border-color: #c06459;
-}
-
-/* Overall tracker */
-.tracker{ 
-  margin-top: 32px;
-  padding: 32px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.tracker-top{
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  text-align: center;
-}
-
-.tracker-text{ 
-  margin: 0; 
-  font-weight: 400;
-  color: var(--text);
-  font-size: 18px;
-}
-
-.tracker-goal{ 
-  margin: 0; 
-  color: var(--muted); 
-  font-size: 15px;
-  font-weight: 300;
-}
-
-.progress{
-  margin-top: 24px;
-  height: 4px;
-  border-radius: 0;
-  background: var(--accent-light);
-  border: none;
-  overflow: hidden;
-}
-
-.progress-fill{
-  height: 100%;
-  width: 0%;
-  border-radius: 0;
-  background: var(--accent);
-  transition: width 1s cubic-bezier(.4, 0, .2, 1);
-}
-
-.tracker-note{ 
-  margin: 24px 0 0; 
-  color: var(--muted);
-  font-size: 15px;
-  text-align: center;
-  font-weight: 300;
-  font-style: italic;
-}
-
-/* Essentials grid */
-.grid{
-  margin-top: 32px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-}
-
-@media (max-width: 760px){
-  .grid{ grid-template-columns: 1fr; }
-  .card{ padding: 32px 24px; }
-  .wrap{ padding: 60px 20px 80px; }
-  .header{ margin-bottom: 60px; }
-  h1{ font-size: clamp(32px, 10vw, 48px); }
-  .buttons{ flex-direction: column; }
-  .btn{ width: 100%; }
-  .care-choice{ 
-    flex-direction: column; 
-    gap: 16px;
-    padding: 24px;
-  }
-  .care-right{ 
-    text-align: left;
-    min-width: auto;
-  }
-}
-
-.item{
-  display: block;
-  padding: 32px 24px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--card);
-  text-decoration: none;
-  color: var(--text);
-  transition: all .3s ease;
-  text-align: center;
-}
-
-.item:hover{
-  border-color: var(--accent);
-  box-shadow: 0 8px 24px rgba(0,0,0,.08);
-}
-
-.item h3{ 
-  margin: 0 0 12px; 
-  font-size: 18px;
-  font-weight: 400;
-  font-family: 'Playfair Display', Georgia, serif;
-}
-
-.item p{ 
-  margin: 0; 
-  color: var(--muted); 
-  line-height: 1.6;
-  font-weight: 300;
-  font-size: 14px;
-}
-
-/* Care registry list */
-.care-list{
-  display: grid;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.care-choice{
-  width: 100%;
-  text-align: left;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 32px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  transition: all .3s ease;
-}
-
-.care-choice:hover{
-  border-color: var(--accent);
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
-}
-
-.care-choice.selected{
-  border-color: var(--accent);
-  background: var(--accent-light);
-}
-
-.care-left h3{ 
-  margin: 0 0 8px; 
-  font-size: 17px;
-  font-weight: 400;
-  font-family: 'Playfair Display', Georgia, serif;
-  color: var(--text);
-}
-
-.care-sub{
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-  font-weight: 300;
-}
-
-.care-right{
-  text-align: right;
-  min-width: 140px;
-}
-
-.care-amount{
-  font-size: 15px;
-  color: var(--text);
-  white-space: nowrap;
-  font-weight: 400;
-}
-
-.care-mini{
-  margin-top: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 300;
-  font-style: italic;
-}
-
-.care-selected{
-  margin-top: 24px;
-  padding: 20px 24px;
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
-  background: var(--accent-light);
-  font-size: 15px;
-  text-align: center;
-}
-
-.footer{
-  text-align: center;
-  margin-top: 80px;
-  padding-top: 40px;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-  font-weight: 300;
-  font-size: 15px;
-}
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
 
   <body>
@@ -355,21 +14,26 @@ h1{
         <p class="eyebrow">Baby Registry</p>
         <h1>Shaq & Catalina</h1>
         <p class="subhead">A simple, love-first way to support Baby Enoch.</p>
+        
+        <!-- IMPROVEMENT 1: Hero Image - Add your photo here -->
+        <div class="hero-image">
+          <!-- To add your photo: uncomment the line below and add your image file -->
+          <!-- <img src="your-photo.jpg" alt="Shaq and Catalina"> -->
+          <span>Add your photo here</span>
+        </div>
       </header>
 
+      <!-- IMPROVEMENT 2: Simplified first card - reduced from 4 paragraphs to 2 -->
       <section class="card">
         <h2>Why we're doing it like this</h2>
-        <p>We wanted to keep this really simple and intentional.</p>
         <p>
-          We don't want a lot of things — because at the end of the day,
-          <strong>all a baby truly needs is love</strong>. And Enoch is already surrounded by so much of it.
+          We wanted to keep this simple and intentional. At the end of the day, 
+          <strong>all a baby truly needs is love</strong> — and Enoch is already surrounded by so much of it.
+          Instead of accumulating items all at once, we're choosing to make thoughtful purchases as we go, 
+          based on what he actually needs.
         </p>
         <p>
-          Instead of receiving a lot of items all at once, we're choosing to make thoughtful purchases
-          as we go — based on what Enoch actually needs, when he needs it.
-        </p>
-        <p>
-          Support that's flexible allows us to do that with care and without excess.
+          Your flexible support allows us to do that with care and without excess.
           No pressure at all — your love and presence in our lives already mean everything.
         </p>
       </section>
@@ -379,22 +43,22 @@ h1{
 
         <div class="tracker">
           <div class="tracker-top">
-            <p class="tracker-text" id="trackerText">$1,250 has been given so far. Thank you so much. We love you!</p>
-            <p class="tracker-goal" id="trackerGoal">Goal: $2,000</p>
+            <p class="tracker-text" id="trackerText">Loading total…</p>
+            <p class="tracker-goal" id="trackerGoal"></p>
           </div>
 
-          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="62">
-            <div class="progress-fill" id="progressFill" style="width: 62%"></div>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
           </div>
 
           <p class="tracker-note" id="trackerNote">Thank you so much. We love you!</p>
         </div>
 
         <div class="buttons">
-          <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
+          <a class="btn primary" id="paypalBtn" href="#" target="_blank" rel="noreferrer">
             Support on PayPal
           </a>
-          <a class="btn" id="amazonRegistryBtn" href="#" onclick="alert('This would link to your Amazon Registry'); return false;">
+          <a class="btn" id="amazonRegistryBtn" href="#" target="_blank" rel="noreferrer">
             Amazon Registry
           </a>
         </div>
@@ -417,19 +81,19 @@ h1{
               <p class="care-sub">Helps keep the home calm and functional.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-housekeeper">$150 / $300</div>
-              <div class="care-mini" id="mini-housekeeper">50% supported</div>
+              <div class="care-amount" id="amt-housekeeper">$0</div>
+              <div class="care-mini" id="mini-housekeeper"></div>
             </div>
           </button>
 
-          <button class="care-choice selected" data-key="food" type="button">
+          <button class="care-choice" data-key="food" type="button">
             <div class="care-left">
               <h3>Food Delivery Service</h3>
               <p class="care-sub">Meals early on = less stress, more rest.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-food">$400 / $500</div>
-              <div class="care-mini" id="mini-food">80% supported</div>
+              <div class="care-amount" id="amt-food">$0</div>
+              <div class="care-mini" id="mini-food"></div>
             </div>
           </button>
 
@@ -439,8 +103,8 @@ h1{
               <p class="care-sub">A reset day for Catalina to feel cared for.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-spa">$200 / $250</div>
-              <div class="care-mini" id="mini-spa">80% supported</div>
+              <div class="care-amount" id="amt-spa">$0</div>
+              <div class="care-mini" id="mini-spa"></div>
             </div>
           </button>
 
@@ -450,8 +114,8 @@ h1{
               <p class="care-sub">Support for comfort and development.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-massage">$180 / $200</div>
-              <div class="care-mini" id="mini-massage">90% supported</div>
+              <div class="care-amount" id="amt-massage">$0</div>
+              <div class="care-mini" id="mini-massage"></div>
             </div>
           </button>
 
@@ -461,8 +125,8 @@ h1{
               <p class="care-sub">Confidence + safety + joy in the water.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-swim">$120 / $300</div>
-              <div class="care-mini" id="mini-swim">40% supported</div>
+              <div class="care-amount" id="amt-swim">$0</div>
+              <div class="care-mini" id="mini-swim"></div>
             </div>
           </button>
 
@@ -472,14 +136,14 @@ h1{
               <p class="care-sub">A little breathing room for rest and reset.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-sitter">$200 / $200</div>
-              <div class="care-mini" id="mini-sitter">Fully supported</div>
+              <div class="care-amount" id="amt-sitter">$0</div>
+              <div class="care-mini" id="mini-sitter"></div>
             </div>
           </button>
         </div>
 
         <div class="care-selected" id="careSelected" aria-live="polite">
-          <span class="muted">Selected:</span> <strong id="selectedLabel">Food Delivery Service</strong>
+          <span class="muted">Selected:</span> <strong id="selectedLabel">None</strong>
         </div>
 
         <p class="muted" style="margin-top: 10px;">
@@ -492,17 +156,17 @@ h1{
         <p class="muted">We kept this short on purpose.</p>
 
         <div class="grid">
-          <a class="item" id="diapersLink" href="#" onclick="alert('This would link to diapers on Amazon'); return false;">
+          <a class="item" id="diapersLink" href="#" target="_blank" rel="noreferrer">
             <h3>Diapers</h3>
             <p>Grab a pack anytime.</p>
           </a>
 
-          <a class="item" id="wipesLink" href="#" onclick="alert('This would link to wipes on Amazon'); return false;">
+          <a class="item" id="wipesLink" href="#" target="_blank" rel="noreferrer">
             <h3>Wipes</h3>
             <p>We'll go through these nonstop.</p>
           </a>
 
-          <a class="item" id="strollerLink" href="#" onclick="alert('This would link to the stroller on Amazon'); return false;">
+          <a class="item" id="strollerLink" href="#" target="_blank" rel="noreferrer">
             <h3>Stroller</h3>
             <p>The one we chose for Enoch.</p>
           </a>
@@ -514,25 +178,16 @@ h1{
       </footer>
     </main>
 
-    <script>
-      // Make the category buttons interactive
-      document.querySelectorAll('.care-choice').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.care-choice').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          
-          const labels = {
-            housekeeper: 'House Keeper Gift Card',
-            food: 'Food Delivery Service',
-            spa: 'Mom Spa Date',
-            massage: 'Baby Massage',
-            swim: 'Baby Swimming Class',
-            sitter: '2 Hours Baby Sitter'
-          };
-          
-          document.getElementById('selectedLabel').textContent = labels[btn.dataset.key] || 'None';
-        });
-      });
-    </script>
+    <!-- IMPROVEMENT 3: Thank you modal confirmation -->
+    <div class="modal-overlay" id="thankYouModal">
+      <div class="modal">
+        <h3>Thank You! 💕</h3>
+        <p>Your support for <span class="category-highlight" id="modalCategory">Baby Enoch</span> means the world to us.</p>
+        <p>We're so grateful to have you in our lives.</p>
+        <button class="modal-close" onclick="closeModal()">Continue</button>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
   </body>
 </html>
