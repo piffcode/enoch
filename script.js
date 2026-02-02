@@ -31,7 +31,7 @@ const CONFIG = {
       label: "House Keeper Gift Card", 
       totalCell: "A3", 
       goalCell: "B3",
-      paypalUrl: "PASTE_HOUSEKEEPER_PAYPAL_LINK_HERE"
+      paypalUrl: "https://www.paypal.com/ncp/payment/YHTTTT4WDCTB6"
     },
     food: { 
       label: "Food Delivery Service", 
