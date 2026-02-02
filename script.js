@@ -45,7 +45,7 @@ const CONFIG = {
   
   googleSheet: {
     sheetId: "163lYWDpbwmaPJnVRXPUXkKLhbPIQj96uvkox4mWTOa0",
-    tabName: "Sheet1"
+    tabName: "Reg"
   },
 
   // ==================================================
