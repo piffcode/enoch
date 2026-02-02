@@ -630,10 +630,8 @@ h1{
               <p class="care-sub">Helps keep the home calm and functional.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-housekeeper">$150 / $300</div>
-              <div class="care-mini" id="mini-housekeeper">50% supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
+              <div class="care-amount" id="amt-housekeeper">$0 / $500</div>
+              <div class="care-mini" id="mini-housekeeper">0% supported</div>
             </div>
           </button>
 
@@ -643,10 +641,8 @@ h1{
               <p class="care-sub">Meals early on = less stress, more rest.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-food">$400 / $500</div>
-              <div class="care-mini" id="mini-food">80% supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
+              <div class="care-amount" id="amt-food">$0 / $500</div>
+              <div class="care-mini" id="mini-food">0% supported</div>
             </div>
           </button>
 
@@ -656,10 +652,8 @@ h1{
               <p class="care-sub">A reset day for Catalina to feel cared for.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-spa">$200 / $250</div>
-              <div class="care-mini" id="mini-spa">80% supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
+              <div class="care-amount" id="amt-spa">$0 / $500</div>
+              <div class="care-mini" id="mini-spa">0% supported</div>
             </div>
           </button>
 
@@ -669,11 +663,8 @@ h1{
               <p class="care-sub">Support for comfort and development.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-massage">$180 / $200</div>
-              <div class="care-mini" id="mini-massage">90% supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
-          </a>
+              <div class="care-amount" id="amt-massage">$0 / $500</div>
+              <div class="care-mini" id="mini-massage">0% supported</div>
             </div>
           </button>
 
@@ -683,10 +674,8 @@ h1{
               <p class="care-sub">Confidence + safety + joy in the water.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-swim">$120 / $300</div>
-              <div class="care-mini" id="mini-swim">40% supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
+              <div class="care-amount" id="amt-swim">$0 / $500</div>
+              <div class="care-mini" id="mini-swim">0% supported</div>
             </div>
           </button>
 
@@ -696,10 +685,8 @@ h1{
               <p class="care-sub">A little breathing room for rest and reset.</p>
             </div>
             <div class="care-right">
-              <div class="care-amount" id="amt-sitter">$200 / $200</div>
-              <div class="care-mini" id="mini-sitter">Fully supported</div>
-              <a class="btn primary" id="paypalBtn" href="#" onclick="alert('This would link to your PayPal checkout'); return false;">
-            SUPPORT
+              <div class="care-amount" id="amt-sitter">$0 / $500</div>
+              <div class="care-mini" id="mini-sitter">0% supported</div>
             </div>
           </button>
         </div>
@@ -750,70 +737,11 @@ h1{
       </div>
     </div>
 
+    <!-- Load the script.js file that handles auto-updating from Google Sheets -->
+    <script src="script.js"></script>
+
+    <!-- Comments functionality -->
     <script>
-      // Category labels
-      const labels = {
-        housekeeper: 'House Keeper Gift Card',
-        food: 'Food Delivery Service',
-        spa: 'Mom Spa Date',
-        massage: 'Baby Massage',
-        swim: 'Baby Swimming Class',
-        sitter: '2 Hours Baby Sitter'
-      };
-
-      let selectedCategory = 'food';
-
-      const donateBtn = document.getElementById('careDonateBtn');
-
-      const openDonationFlow = () => {
-        const categoryName = labels[selectedCategory] || 'Baby Enoch';
-        document.getElementById('modalCategory').textContent = categoryName;
-        document.getElementById('thankYouModal').classList.add('show');
-
-        setTimeout(() => {
-          alert('This would redirect to your PayPal checkout with "' + categoryName + '" in the note!');
-          closeModal();
-        }, 2000);
-      };
-
-      // Make the category buttons interactive
-      document.querySelectorAll('.care-choice').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.care-choice').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedCategory = btn.dataset.key;
-          document.getElementById('selectedLabel').textContent = labels[btn.dataset.key] || 'None';
-          if (donateBtn) {
-            donateBtn.textContent = `Donate for ${labels[btn.dataset.key] || 'this'}`;
-            donateBtn.classList.add('show');
-          }
-        });
-      });
-
-      // Show thank you modal when PayPal button is clicked
-      document.getElementById('paypalBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        openDonationFlow();
-      });
-
-      if (donateBtn) {
-        donateBtn.addEventListener('click', openDonationFlow);
-        donateBtn.classList.add('show');
-        donateBtn.textContent = `Donate for ${labels[selectedCategory]}`;
-      }
-
-      // Close modal function
-      function closeModal() {
-        document.getElementById('thankYouModal').classList.remove('show');
-      }
-
-      // Close modal when clicking overlay
-      document.getElementById('thankYouModal').addEventListener('click', (e) => {
-        if (e.target.id === 'thankYouModal') {
-          closeModal();
-        }
-      });
-
       const commentForm = document.getElementById('commentForm');
       const commentList = document.getElementById('commentList');
       const commentName = document.getElementById('commentName');
