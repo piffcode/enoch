@@ -1,196 +1,451 @@
-/**
- * EDIT THESE LINKS + SHEET ID
- * - PayPal: single checkout link
- * - Amazon registry link
- * - Diapers/wipes/stroller links
- * - Google Sheet ID (published)
- */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap');
 
-const CONFIG = {
-  paypalCheckoutUrl: "PASTE_YOUR_PAYPAL_CHECKOUT_LINK_HERE",
-  amazonRegistryUrl: "PASTE_YOUR_AMAZON_REGISTRY_LINK_HERE",
-
-  diapersUrl: "PASTE_DIAPERS_LINK_HERE",
-  wipesUrl: "PASTE_WIPES_LINK_HERE",
-  strollerUrl: "PASTE_STROLLER_LINK_HERE",
-
-  // Overall tracker goal
-  goalAmount: 2000,
-
-  // Google Sheet source (must be published / public)
-  googleSheet: {
-    sheetId: "PASTE_PUBLIC_SHEET_ID_HERE",
-    tabName: "Sheet1"
-  },
-
-  // Category mapping to sheet cells (totals in A3..A8, optional goals in B3..B8)
-  careCategories: {
-    housekeeper: { label: "House Keeper Gift Card", totalCell: "A3", goalCell: "B3" },
-    food:        { label: "Food Delivery Service",  totalCell: "A4", goalCell: "B4" },
-    spa:         { label: "Mom Spa Date",           totalCell: "A5", goalCell: "B5" },
-    massage:     { label: "Baby Massage",           totalCell: "A6", goalCell: "B6" },
-    swim:        { label: "Baby Swimming Class",    totalCell: "A7", goalCell: "B7" },
-    sitter:      { label: "2 Hours Baby Sitter",    totalCell: "A8", goalCell: "B8" }
-  }
-};
-
-// ---------- Helpers ----------
-function formatUSD(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0
-  }).format(amount);
+:root{
+  --bg: #f9f7f4;
+  --card: #ffffff;
+  --text: #2d2d2d;
+  --muted: #7a7a7a;
+  --border: rgba(220,200,190,.3);
+  --shadow: 0 4px 20px rgba(0,0,0,.06);
+  --radius: 2px;
+  --accent: #d4756c;
+  --accent-light: #f4e8e6;
 }
 
-function clamp(n, min, max) {
-  return Math.max(min, Math.min(max, n));
+*{ box-sizing: border-box; }
+html,body{ height: 100%; }
+
+body{
+  margin: 0;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.7;
+  font-weight: 300;
 }
 
-// ---------- Overall progress bar ----------
-function setProgress(total) {
-  const goal = CONFIG.goalAmount;
-
-  const trackerText = document.getElementById("trackerText");
-  const trackerGoal = document.getElementById("trackerGoal");
-  const trackerNote = document.getElementById("trackerNote");
-  const progressFill = document.getElementById("progressFill");
-  const progressContainer = document.querySelector(".progress");
-
-  const pct = goal > 0 ? (total / goal) * 100 : 0;
-  const pctClamped = clamp(pct, 0, 100);
-
-  if (progressFill) progressFill.style.width = `${pctClamped}%`;
-  if (progressContainer) progressContainer.setAttribute("aria-valuenow", String(Math.round(pctClamped)));
-
-  if (trackerText) trackerText.textContent = `${formatUSD(total)} has been given so far. Thank you so much. We love you!`;
-  if (trackerGoal) trackerGoal.textContent = goal ? `Goal: ${formatUSD(goal)}` : "";
-  if (trackerNote) {
-    trackerNote.textContent = total >= goal && goal > 0
-      ? "We hit the goal. Seriously… thank you."
-      : "Thank you so much. We love you!";
-  }
+.wrap{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 24px 100px;
 }
 
-// ---------- Google Sheet fetch ----------
-async function fetchSheetA1toB8() {
-  const { sheetId, tabName } = CONFIG.googleSheet;
-
-  // Reads a rectangle A1:B8. We'll map it into {A1:..., B3:...}
-  const range = "A1:B8";
-  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(tabName)}&range=${encodeURIComponent(range)}`;
-
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Could not fetch sheet data");
-
-  const text = await res.text();
-  const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  const data = JSON.parse(jsonText);
-
-  const rows = data?.table?.rows || [];
-  const out = {};
-
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r]?.c || [];
-    const aVal = row[0]?.v;
-    const bVal = row[1]?.v;
-
-    const rowNum = r + 1; // range starts at row 1
-    out[`A${rowNum}`] = Number(aVal ?? 0) || 0;
-    out[`B${rowNum}`] = Number(bVal ?? 0) || 0;
-  }
-
-  return out;
+.header{
+  text-align: center;
+  margin-bottom: 80px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
 }
 
-// ---------- Category UI ----------
-let selectedCategoryKey = null;
-
-function setSelectedCategory(key) {
-  selectedCategoryKey = key;
-
-  document.querySelectorAll(".care-choice").forEach(btn => {
-    btn.classList.toggle("selected", btn.dataset.key === key);
-  });
-
-  const labelEl = document.getElementById("selectedLabel");
-  if (labelEl) labelEl.textContent = CONFIG.careCategories[key]?.label || "None";
+/* IMPROVEMENT 1: Hero image styling */
+.hero-image{
+  width: 100%;
+  max-width: 600px;
+  height: 400px;
+  margin: 40px auto 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: linear-gradient(135deg, #f4e8e6 0%, #e8d5d0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--muted);
+  font-style: italic;
 }
 
-function renderCareCounters(values) {
-  for (const [key, meta] of Object.entries(CONFIG.careCategories)) {
-    const total = values[meta.totalCell] ?? 0;
-    const goal = values[meta.goalCell] ?? 0;
-
-    const amtEl = document.getElementById(`amt-${key}`);
-    const miniEl = document.getElementById(`mini-${key}`);
-
-    if (amtEl) {
-      amtEl.textContent = goal ? `${formatUSD(total)} / ${formatUSD(goal)}` : formatUSD(total);
-    }
-
-    if (miniEl) {
-      if (goal > 0) {
-        const pct = Math.min((total / goal) * 100, 100);
-        miniEl.textContent = pct >= 100 ? "Fully supported" : `${Math.round(pct)}% supported`;
-      } else {
-        miniEl.textContent = "Thank you for supporting";
-      }
-    }
-  }
+.hero-image img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-// ---------- Init ----------
-async function init() {
-  // Wire core links
-  const paypalBtn = document.getElementById("paypalBtn");
-  const amazonRegistryBtn = document.getElementById("amazonRegistryBtn");
-  const diapersLink = document.getElementById("diapersLink");
-  const wipesLink = document.getElementById("wipesLink");
-  const strollerLink = document.getElementById("strollerLink");
-
-  if (paypalBtn) paypalBtn.href = CONFIG.paypalCheckoutUrl;
-  if (amazonRegistryBtn) amazonRegistryBtn.href = CONFIG.amazonRegistryUrl;
-
-  if (diapersLink) diapersLink.href = CONFIG.diapersUrl;
-  if (wipesLink) wipesLink.href = CONFIG.wipesUrl;
-  if (strollerLink) strollerLink.href = CONFIG.strollerUrl;
-
-  // Guardrails for placeholders
-  if (paypalBtn && CONFIG.paypalCheckoutUrl.includes("PASTE_")) {
-    paypalBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Paste your PayPal link into script.js (CONFIG.paypalCheckoutUrl).");
-    });
-  }
-  if (amazonRegistryBtn && CONFIG.amazonRegistryUrl.includes("PASTE_")) {
-    amazonRegistryBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Paste your Amazon registry link into script.js (CONFIG.amazonRegistryUrl).");
-    });
-  }
-
-  // Category selection click handlers
-  document.querySelectorAll(".care-choice").forEach(btn => {
-    btn.addEventListener("click", () => setSelectedCategory(btn.dataset.key));
-  });
-
-  // Default selection (feel free to change)
-  setSelectedCategory("food");
-
-  // Load totals from sheet
-  try {
-    const values = await fetchSheetA1toB8();
-
-    // Overall total is A1
-    setProgress(values.A1 || 0);
-
-    // Category totals A3..A8 and goals B3..B8
-    renderCareCounters(values);
-  } catch (err) {
-    console.error(err);
-    setProgress(0);
-  }
+.eyebrow{
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-size: 11px;
+  margin: 0 0 16px;
+  font-weight: 400;
 }
 
-init();
+h1{
+  margin: 0 0 20px;
+  font-size: clamp(42px, 6vw, 72px);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -.01em;
+  line-height: 1.1;
+}
+
+.subhead{
+  margin: 0 auto;
+  max-width: 560px;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 17px;
+  font-weight: 300;
+}
+
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px;
+  box-shadow: var(--shadow);
+  margin: 40px 0;
+}
+
+.card h2{
+  margin: 0 0 24px;
+  font-size: 28px;
+  font-family: 'Playfair Display', Georgia, serif;
+  letter-spacing: -.01em;
+  color: var(--text);
+  font-weight: 400;
+  text-align: center;
+}
+
+.card p{
+  margin: 16px 0;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.muted{ color: var(--muted); }
+
+.buttons{
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+  justify-content: center;
+}
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--text);
+  color: var(--text);
+  text-decoration: none;
+  background: transparent;
+  transition: all .3s ease;
+  min-width: 200px;
+  font-weight: 400;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn:hover{
+  background: var(--text);
+  color: white;
+}
+
+.btn.primary{
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn.primary:hover{
+  background: #c06459;
+  border-color: #c06459;
+}
+
+/* Overall tracker */
+.tracker{ 
+  margin-top: 32px;
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.tracker-top{
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.tracker-text{ 
+  margin: 0; 
+  font-weight: 400;
+  color: var(--text);
+  font-size: 18px;
+}
+
+.tracker-goal{ 
+  margin: 0; 
+  color: var(--muted); 
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.progress{
+  margin-top: 24px;
+  height: 4px;
+  border-radius: 0;
+  background: var(--accent-light);
+  border: none;
+  overflow: hidden;
+}
+
+.progress-fill{
+  height: 100%;
+  width: 0%;
+  border-radius: 0;
+  background: var(--accent);
+  transition: width 1s cubic-bezier(.4, 0, .2, 1);
+}
+
+.tracker-note{ 
+  margin: 24px 0 0; 
+  color: var(--muted);
+  font-size: 15px;
+  text-align: center;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* Essentials grid */
+.grid{
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.item{
+  display: block;
+  padding: 32px 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  text-decoration: none;
+  color: var(--text);
+  transition: all .3s ease;
+  text-align: center;
+}
+
+.item:hover{
+  border-color: var(--accent);
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+}
+
+.item h3{ 
+  margin: 0 0 12px; 
+  font-size: 18px;
+  font-weight: 400;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.item p{ 
+  margin: 0; 
+  color: var(--muted); 
+  line-height: 1.6;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+/* Care registry list */
+.care-list{
+  display: grid;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.care-choice{
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: all .3s ease;
+}
+
+.care-choice:hover{
+  border-color: var(--accent);
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+.care-choice.selected{
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.care-left h3{ 
+  margin: 0 0 8px; 
+  font-size: 17px;
+  font-weight: 400;
+  font-family: 'Playfair Display', Georgia, serif;
+  color: var(--text);
+}
+
+.care-sub{
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.care-right{
+  text-align: right;
+  min-width: 140px;
+}
+
+.care-amount{
+  font-size: 15px;
+  color: var(--text);
+  white-space: nowrap;
+  font-weight: 400;
+}
+
+.care-mini{
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 300;
+  font-style: italic;
+}
+
+.care-selected{
+  margin-top: 24px;
+  padding: 20px 24px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-light);
+  font-size: 15px;
+  text-align: center;
+}
+
+.footer{
+  text-align: center;
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-weight: 300;
+  font-size: 15px;
+}
+
+/* IMPROVEMENT 3: Thank you modal */
+.modal-overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s ease;
+  padding: 20px;
+}
+
+.modal-overlay.show{
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal{
+  background: white;
+  border-radius: var(--radius);
+  padding: 48px 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  text-align: center;
+  transform: translateY(20px);
+  transition: transform .3s ease;
+}
+
+.modal-overlay.show .modal{
+  transform: translateY(0);
+}
+
+.modal h3{
+  margin: 0 0 16px;
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.modal p{
+  margin: 0 0 24px;
+  color: var(--muted);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.modal .category-highlight{
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.modal-close{
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 400;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-size: 12px;
+  transition: all .3s ease;
+}
+
+.modal-close:hover{
+  background: #c06459;
+  border-color: #c06459;
+}
+
+/* Mobile responsive */
+@media (max-width: 760px){
+  .grid{ grid-template-columns: 1fr; }
+  .card{ padding: 32px 24px; }
+  .wrap{ padding: 60px 20px 80px; }
+  .header{ margin-bottom: 60px; }
+  h1{ font-size: clamp(32px, 10vw, 48px); }
+  .buttons{ flex-direction: column; }
+  .btn{ width: 100%; }
+  .care-choice{ 
+    flex-direction: column; 
+    gap: 16px;
+    padding: 24px;
+  }
+  .care-right{ 
+    text-align: left;
+    min-width: auto;
+  }
+  .hero-image{
+    height: 300px;
+    margin-top: 30px;
+  }
+}
