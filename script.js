@@ -1,37 +1,72 @@
 /**
- * EDIT THESE LINKS + SHEET ID
- * - PayPal: single checkout link
- * - Amazon registry link
- * - Diapers/wipes/stroller links
- * - Google Sheet ID (published)
+ * ============================================
+ * BABY REGISTRY AUTO-UPDATING SCRIPT
+ * ============================================
+ * 
+ * SETUP INSTRUCTIONS:
+ * 
+ * 1. Replace "PASTE_YOUR_..." placeholders with actual URLs
+ * 2. Update googleSheet.sheetId with your Google Sheet ID
+ * 3. Make sure your Google Sheet is public (Anyone with link = Viewer)
+ * 4. Upload this file along with index.html to your web host
+ * 
+ * HOW IT WORKS:
+ * - Fetches data from your Google Sheet when page loads
+ * - Updates all numbers automatically
+ * - Redirects to category-specific PayPal links
  */
 
 const CONFIG = {
-  // General donation link (for people who don't select a category)
+  // ==================================================
+  // STEP 1: ADD YOUR PAYPAL LINKS
+  // ==================================================
+  
+  // General PayPal link (fallback if no category selected)
   paypalGeneralUrl: "PASTE_YOUR_GENERAL_PAYPAL_LINK_HERE",
+  
+  // ==================================================
+  // STEP 2: ADD YOUR AMAZON LINKS
+  // ==================================================
+  
   amazonRegistryUrl: "PASTE_YOUR_AMAZON_REGISTRY_LINK_HERE",
-
   diapersUrl: "PASTE_DIAPERS_LINK_HERE",
   wipesUrl: "PASTE_WIPES_LINK_HERE",
   strollerUrl: "PASTE_STROLLER_LINK_HERE",
 
-  // Overall tracker goal
-  goalAmount: 2000,
+  // ==================================================
+  // STEP 3: SET YOUR OVERALL GOAL
+  // ==================================================
+  
+  goalAmount: 2000,  // Overall fundraising goal
 
-  // Google Sheet source (must be published / public)
+  // ==================================================
+  // STEP 4: ADD YOUR GOOGLE SHEET ID
+  // ==================================================
+  
+  // How to find your Sheet ID:
+  // Your Google Sheet URL looks like:
+  // https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9/edit
+  //                                      ^^^^ THIS PART ^^^^
+  // Copy just the ID part (between /d/ and /edit)
+  
   googleSheet: {
-    sheetId: "PASTE_PUBLIC_SHEET_ID_HERE",
-    tabName: "Sheet1"
+    sheetId: "PASTE_PUBLIC_SHEET_ID_HERE",  // ← Replace this with your actual Sheet ID
+    tabName: "Sheet1"  // ← Change if your tab has a different name
   },
 
-  // Category mapping - NOW WITH INDIVIDUAL PAYPAL LINKS!
-  // Each category can have its own PayPal link for that specific amount
+  // ==================================================
+  // STEP 5: ADD CATEGORY-SPECIFIC PAYPAL LINKS
+  // ==================================================
+  
+  // Each category can have its own PayPal link
+  // Create separate PayPal buttons for each category with the exact item names below
+  
   careCategories: {
     housekeeper: { 
-      label: "House Keeper Gift Card", 
-      totalCell: "A3", 
-      goalCell: "B3",
-      paypalUrl: "https://www.paypal.com/ncp/payment/YHTTTT4WDCTB6"
+      label: "House Keeper Gift Card",  // Must match PayPal item name
+      totalCell: "A3",  // Current total from Google Sheet
+      goalCell: "B3",   // Goal from Google Sheet
+      paypalUrl: "PASTE_HOUSEKEEPER_PAYPAL_LINK_HERE"
     },
     food: { 
       label: "Food Delivery Service", 
@@ -66,7 +101,13 @@ const CONFIG = {
   }
 };
 
-// ---------- Helpers ----------
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
+
+/**
+ * Format a number as USD currency
+ */
 function formatUSD(amount) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -75,11 +116,21 @@ function formatUSD(amount) {
   }).format(amount);
 }
 
+/**
+ * Clamp a number between min and max
+ */
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
-// ---------- Overall progress bar ----------
+// ============================================
+// OVERALL PROGRESS BAR
+// ============================================
+
+/**
+ * Update the overall progress tracker
+ * @param {number} total - Current total from Google Sheet cell A1
+ */
 function setProgress(total) {
   const goal = CONFIG.goalAmount;
 
@@ -92,11 +143,24 @@ function setProgress(total) {
   const pct = goal > 0 ? (total / goal) * 100 : 0;
   const pctClamped = clamp(pct, 0, 100);
 
-  if (progressFill) progressFill.style.width = `${pctClamped}%`;
-  if (progressContainer) progressContainer.setAttribute("aria-valuenow", String(Math.round(pctClamped)));
+  // Update progress bar
+  if (progressFill) {
+    progressFill.style.width = `${pctClamped}%`;
+  }
+  
+  if (progressContainer) {
+    progressContainer.setAttribute("aria-valuenow", String(Math.round(pctClamped)));
+  }
 
-  if (trackerText) trackerText.textContent = `${formatUSD(total)} has been given so far. Thank you so much. We love you!`;
-  if (trackerGoal) trackerGoal.textContent = goal ? `Goal: ${formatUSD(goal)}` : "";
+  // Update text
+  if (trackerText) {
+    trackerText.textContent = `${formatUSD(total)} has been given so far. Thank you so much. We love you!`;
+  }
+  
+  if (trackerGoal) {
+    trackerGoal.textContent = goal ? `Goal: ${formatUSD(goal)}` : "";
+  }
+  
   if (trackerNote) {
     trackerNote.textContent = total >= goal && goal > 0
       ? "We hit the goal. Seriously… thank you."
@@ -104,63 +168,94 @@ function setProgress(total) {
   }
 }
 
-// ---------- Google Sheet fetch ----------
+// ============================================
+// GOOGLE SHEET DATA FETCHING
+// ============================================
+
+/**
+ * Fetch data from Google Sheet (cells A1:B8)
+ * @returns {Promise<Object>} Object with cell values like {A1: 100, B1: 2000, ...}
+ */
 async function fetchSheetA1toB8() {
   const { sheetId, tabName } = CONFIG.googleSheet;
 
-  // Reads a rectangle A1:B8. We'll map it into {A1:..., B3:...}
+  // Build the Google Sheets API URL
   const range = "A1:B8";
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(tabName)}&range=${encodeURIComponent(range)}`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error("Could not fetch sheet data");
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Could not fetch sheet data");
 
-  const text = await res.text();
-  const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  const data = JSON.parse(jsonText);
+    const text = await res.text();
+    
+    // Extract JSON from the response (Google Sheets returns JSONP)
+    const jsonText = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+    const data = JSON.parse(jsonText);
 
-  const rows = data?.table?.rows || [];
-  const out = {};
+    const rows = data?.table?.rows || [];
+    const out = {};
 
-  for (let r = 0; r < rows.length; r++) {
-    const row = rows[r]?.c || [];
-    const aVal = row[0]?.v;
-    const bVal = row[1]?.v;
+    // Map the data to cell references (A1, B1, A2, B2, etc.)
+    for (let r = 0; r < rows.length; r++) {
+      const row = rows[r]?.c || [];
+      const aVal = row[0]?.v;
+      const bVal = row[1]?.v;
 
-    const rowNum = r + 1; // range starts at row 1
-    out[`A${rowNum}`] = Number(aVal ?? 0) || 0;
-    out[`B${rowNum}`] = Number(bVal ?? 0) || 0;
+      const rowNum = r + 1;
+      out[`A${rowNum}`] = Number(aVal ?? 0) || 0;
+      out[`B${rowNum}`] = Number(bVal ?? 0) || 0;
+    }
+
+    return out;
+  } catch (error) {
+    console.error("Error fetching Google Sheet:", error);
+    throw error;
   }
-
-  return out;
 }
 
-// ---------- Category UI ----------
+// ============================================
+// CATEGORY SELECTION
+// ============================================
+
 let selectedCategoryKey = null;
 
+/**
+ * Set which category is currently selected
+ * @param {string} key - Category key (e.g., "food", "spa")
+ */
 function setSelectedCategory(key) {
   selectedCategoryKey = key;
 
+  // Update button styles
   document.querySelectorAll(".care-choice").forEach(btn => {
     btn.classList.toggle("selected", btn.dataset.key === key);
   });
 
+  // Update selected label
   const labelEl = document.getElementById("selectedLabel");
-  if (labelEl) labelEl.textContent = CONFIG.careCategories[key]?.label || "None";
+  if (labelEl) {
+    labelEl.textContent = CONFIG.careCategories[key]?.label || "None";
+  }
 }
 
+/**
+ * Update the category counter displays
+ * @param {Object} values - Sheet values from fetchSheetA1toB8()
+ */
 function renderCareCounters(values) {
   for (const [key, meta] of Object.entries(CONFIG.careCategories)) {
     const total = values[meta.totalCell] ?? 0;
     const goal = values[meta.goalCell] ?? 0;
 
+    // Update amount display
     const amtEl = document.getElementById(`amt-${key}`);
-    const miniEl = document.getElementById(`mini-${key}`);
-
     if (amtEl) {
       amtEl.textContent = goal ? `${formatUSD(total)} / ${formatUSD(goal)}` : formatUSD(total);
     }
 
+    // Update mini progress text
+    const miniEl = document.getElementById(`mini-${key}`);
     if (miniEl) {
       if (goal > 0) {
         const pct = Math.min((total / goal) * 100, 100);
@@ -172,21 +267,36 @@ function renderCareCounters(values) {
   }
 }
 
-// IMPROVEMENT 3: Thank you modal functions
+// ============================================
+// THANK YOU MODAL
+// ============================================
+
+/**
+ * Show thank you modal and redirect to PayPal
+ */
 function showThankYouModal() {
   const categoryName = selectedCategoryKey 
     ? CONFIG.careCategories[selectedCategoryKey]?.label 
     : "Baby Enoch";
   
-  document.getElementById('modalCategory').textContent = categoryName;
-  document.getElementById('thankYouModal').classList.add('show');
+  // Update modal text
+  const modalCategory = document.getElementById('modalCategory');
+  if (modalCategory) {
+    modalCategory.textContent = categoryName;
+  }
   
-  // After 2 seconds, proceed to the specific PayPal link for that category
+  // Show modal
+  const modal = document.getElementById('thankYouModal');
+  if (modal) {
+    modal.classList.add('show');
+  }
+  
+  // After 2 seconds, redirect to PayPal
   setTimeout(() => {
     let paypalUrl;
     
+    // Use category-specific PayPal link if available
     if (selectedCategoryKey && CONFIG.careCategories[selectedCategoryKey]?.paypalUrl) {
-      // Use the category-specific PayPal link
       paypalUrl = CONFIG.careCategories[selectedCategoryKey].paypalUrl;
     } else {
       // Fall back to general PayPal link
@@ -197,19 +307,37 @@ function showThankYouModal() {
     if (paypalUrl && !paypalUrl.includes('PASTE_')) {
       window.location.href = paypalUrl;
     } else {
-      alert('Please add your PayPal links in script.js');
+      alert('Please add your PayPal links in script.js (CONFIG section at the top)');
     }
+    
     closeModal();
   }, 2000);
 }
 
+/**
+ * Close the thank you modal
+ */
 function closeModal() {
-  document.getElementById('thankYouModal').classList.remove('show');
+  const modal = document.getElementById('thankYouModal');
+  if (modal) {
+    modal.classList.remove('show');
+  }
 }
 
-// ---------- Init ----------
+// ============================================
+// INITIALIZATION
+// ============================================
+
+/**
+ * Initialize the page - runs when page loads
+ */
 async function init() {
-  // Wire core links
+  console.log("Initializing baby registry page...");
+  
+  // ==================================================
+  // Wire up button links
+  // ==================================================
+  
   const paypalBtn = document.getElementById("paypalBtn");
   const amazonRegistryBtn = document.getElementById("amazonRegistryBtn");
   const diapersLink = document.getElementById("diapersLink");
@@ -221,7 +349,10 @@ async function init() {
   if (wipesLink) wipesLink.href = CONFIG.wipesUrl;
   if (strollerLink) strollerLink.href = CONFIG.strollerUrl;
 
-  // PayPal button now shows modal and uses category-specific links
+  // ==================================================
+  // PayPal button click handler
+  // ==================================================
+  
   if (paypalBtn) {
     paypalBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -229,41 +360,67 @@ async function init() {
     });
   }
   
+  // Show alert if Amazon link not configured
   if (amazonRegistryBtn && CONFIG.amazonRegistryUrl.includes("PASTE_")) {
     amazonRegistryBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      alert("Paste your Amazon registry link into script.js (CONFIG.amazonRegistryUrl).");
+      alert("Please add your Amazon registry link in script.js (CONFIG.amazonRegistryUrl)");
     });
   }
 
-  // Category selection click handlers
+  // ==================================================
+  // Category selection handlers
+  // ==================================================
+  
   document.querySelectorAll(".care-choice").forEach(btn => {
     btn.addEventListener("click", () => setSelectedCategory(btn.dataset.key));
   });
 
-  // Default selection (feel free to change)
+  // Set default selection
   setSelectedCategory("food");
 
-  // Close modal when clicking overlay
-  document.getElementById('thankYouModal').addEventListener('click', (e) => {
-    if (e.target.id === 'thankYouModal') {
-      closeModal();
-    }
-  });
+  // ==================================================
+  // Modal overlay click to close
+  // ==================================================
+  
+  const modal = document.getElementById('thankYouModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target.id === 'thankYouModal') {
+        closeModal();
+      }
+    });
+  }
 
-  // Load totals from sheet
+  // ==================================================
+  // Load data from Google Sheet
+  // ==================================================
+  
   try {
+    console.log("Fetching data from Google Sheet...");
     const values = await fetchSheetA1toB8();
+    console.log("Sheet data loaded:", values);
 
-    // Overall total is A1
+    // Update overall progress (cell A1)
     setProgress(values.A1 || 0);
 
-    // Category totals A3..A8 and goals B3..B8
+    // Update category totals (cells A3-A8 and B3-B8)
     renderCareCounters(values);
+    
+    console.log("Page initialized successfully!");
   } catch (err) {
-    console.error(err);
+    console.error("Error loading sheet data:", err);
+    
+    // Show error message to user
+    const trackerText = document.getElementById("trackerText");
+    if (trackerText) {
+      trackerText.textContent = "Unable to load donation totals. Please check your Google Sheet configuration.";
+    }
+    
+    // Set progress to 0
     setProgress(0);
   }
 }
 
+// Run initialization when page loads
 init();
