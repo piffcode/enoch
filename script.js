@@ -13,7 +13,7 @@
  * HOW IT WORKS:
  * - Fetches data from your Google Sheet when page loads
  * - Updates all numbers automatically
- * - Redirects to category-specific PayPal links
+ * - Redirects to a single PayPal donation link
  */
 
 const CONFIG = {
@@ -49,49 +49,39 @@ const CONFIG = {
   },
 
   // ==================================================
-  // STEP 5: CATEGORY-SPECIFIC PAYPAL LINKS - ✅ CONFIGURED
+  // STEP 5: CARE CATEGORY TRACKING - ✅ CONFIGURED
   // ==================================================
-  
-  // NOTE: All categories currently use the same PayPal button.
-  // If you want different buttons for each category, create them in PayPal
-  // and replace the URLs below with the specific button URLs.
-  
+
   careCategories: {
     housekeeper: { 
       label: "House Keeper Gift Card",
       totalCell: "A3",
-      goalCell: "B3",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B3"
     },
     food: { 
       label: "Food Delivery Service", 
       totalCell: "A4", 
-      goalCell: "B4",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B4"
     },
     spa: { 
       label: "Mom Spa Date", 
       totalCell: "A5", 
-      goalCell: "B5",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B5"
     },
     massage: { 
       label: "Baby Massage", 
       totalCell: "A6", 
-      goalCell: "B6",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B6"
     },
     swim: { 
       label: "Baby Swimming Class", 
       totalCell: "A7", 
-      goalCell: "B7",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B7"
     },
     sitter: { 
       label: "2 Hours Baby Sitter", 
       totalCell: "A8", 
-      goalCell: "B8",
-      paypalUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS"
+      goalCell: "B8"
     }
   }
 };
@@ -209,31 +199,6 @@ async function fetchSheetA1toB8() {
   }
 }
 
-// ============================================
-// CATEGORY SELECTION
-// ============================================
-
-let selectedCategoryKey = null;
-
-/**
- * Set which category is currently selected
- * @param {string} key - Category key (e.g., "food", "spa")
- */
-function setSelectedCategory(key) {
-  selectedCategoryKey = key;
-
-  // Update button styles
-  document.querySelectorAll(".care-choice").forEach(btn => {
-    btn.classList.toggle("selected", btn.dataset.key === key);
-  });
-
-  // Update selected label
-  const labelEl = document.getElementById("selectedLabel");
-  if (labelEl) {
-    labelEl.textContent = CONFIG.careCategories[key]?.label || "None";
-  }
-}
-
 /**
  * Update the category counter displays
  * @param {Object} values - Sheet values from fetchSheetA1toB8()
@@ -270,9 +235,7 @@ function renderCareCounters(values) {
  * Show thank you modal and redirect to PayPal
  */
 function showThankYouModal() {
-  const categoryName = selectedCategoryKey 
-    ? CONFIG.careCategories[selectedCategoryKey]?.label 
-    : "Baby Enoch";
+  const categoryName = "Baby Enoch";
   
   // Update modal text
   const modalCategory = document.getElementById('modalCategory');
@@ -286,17 +249,9 @@ function showThankYouModal() {
     modal.classList.add('show');
   }
   
-  // After 2 seconds, redirect to PayPal
+  // After 2 seconds, redirect to the shared PayPal button
   setTimeout(() => {
-    let paypalUrl;
-    
-    // Use category-specific PayPal link if available
-    if (selectedCategoryKey && CONFIG.careCategories[selectedCategoryKey]?.paypalUrl) {
-      paypalUrl = CONFIG.careCategories[selectedCategoryKey].paypalUrl;
-    } else {
-      // Fall back to general PayPal link
-      paypalUrl = CONFIG.paypalGeneralUrl;
-    }
+    const paypalUrl = CONFIG.paypalGeneralUrl;
     
     // Only redirect if a valid PayPal URL is set
     if (paypalUrl && !paypalUrl.includes('PASTE_')) {
@@ -334,7 +289,6 @@ async function init() {
   // ==================================================
   
   const paypalBtn = document.getElementById("paypalBtn");
-  const careDonateBtn = document.getElementById("careDonateBtn");
   const amazonRegistryBtn = document.getElementById("amazonRegistryBtn");
   const diapersLink = document.getElementById("diapersLink");
   const wipesLink = document.getElementById("wipesLink");
@@ -356,13 +310,6 @@ async function init() {
     });
   }
 
-  if (careDonateBtn) {
-    careDonateBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      showThankYouModal();
-    });
-  }
-  
   // Show alert if Amazon link not configured
   if (amazonRegistryBtn && CONFIG.amazonRegistryUrl.includes("PASTE_")) {
     amazonRegistryBtn.addEventListener("click", (e) => {
@@ -371,18 +318,6 @@ async function init() {
     });
   }
 
-  // ==================================================
-  // Category selection handlers
-  // ==================================================
-  
-  document.querySelectorAll(".care-choice").forEach(btn => {
-    btn.addEventListener("click", () => setSelectedCategory(btn.dataset.key));
-  });
-
-  // Set default selection
-  setSelectedCategory("food");
-
-  // ==================================================
   // Modal overlay click to close
   // ==================================================
   

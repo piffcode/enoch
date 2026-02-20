@@ -612,19 +612,24 @@ h1{
       </section>
 
 
+        <div class="buttons" style="margin-top: 24px;">
+          <a class="btn" id="amazonRegistryBtn" href="#" target="_blank" rel="noopener">Amazon Registry</a>
+          <a class="btn primary" id="paypalBtn" href="#">Donate</a>
+        </div>
+
         <p class="muted" style="margin-top: 12px;">
-          If you want to support something specific, choose a category below before you click PayPal.
+          All donations go to one shared care fund. The list below shows what donations will go to.
         </p>
       </section>
 
       <section class="card">
         <h2>Care & Support Registry</h2>
         <p class="muted">
-          Pick what you'd like to support. We'll keep these totals updated as we go.
+          Here's what your donation helps cover. We'll keep these totals updated as we go.
         </p>
 
         <div class="care-list" id="careList">
-          <button class="care-choice" data-key="housekeeper" type="button">
+          <div class="care-choice" data-key="housekeeper">
             <div class="care-left">
               <h3>House Keeper Gift Card</h3>
               <p class="care-sub">Helps keep the home calm and functional.</p>
@@ -633,9 +638,9 @@ h1{
               <div class="care-amount" id="amt-housekeeper">$0 / $500</div>
               <div class="care-mini" id="mini-housekeeper">0% supported</div>
             </div>
-          </button>
+          </div>
 
-          <button class="care-choice selected" data-key="food" type="button">
+          <div class="care-choice" data-key="food">
             <div class="care-left">
               <h3>Food Delivery Service</h3>
               <p class="care-sub">Meals early on = less stress, more rest.</p>
@@ -644,9 +649,9 @@ h1{
               <div class="care-amount" id="amt-food">$0 / $500</div>
               <div class="care-mini" id="mini-food">0% supported</div>
             </div>
-          </button>
+          </div>
 
-          <button class="care-choice" data-key="spa" type="button">
+          <div class="care-choice" data-key="spa">
             <div class="care-left">
               <h3>Mom Spa Date</h3>
               <p class="care-sub">A reset day for Catalina to feel cared for.</p>
@@ -655,9 +660,9 @@ h1{
               <div class="care-amount" id="amt-spa">$0 / $500</div>
               <div class="care-mini" id="mini-spa">0% supported</div>
             </div>
-          </button>
+          </div>
 
-          <button class="care-choice" data-key="massage" type="button">
+          <div class="care-choice" data-key="massage">
             <div class="care-left">
               <h3>Baby Massage</h3>
               <p class="care-sub">Support for comfort and development.</p>
@@ -666,9 +671,9 @@ h1{
               <div class="care-amount" id="amt-massage">$0 / $500</div>
               <div class="care-mini" id="mini-massage">0% supported</div>
             </div>
-          </button>
+          </div>
 
-          <button class="care-choice" data-key="swim" type="button">
+          <div class="care-choice" data-key="swim">
             <div class="care-left">
               <h3>Baby Swimming Class</h3>
               <p class="care-sub">Confidence + safety + joy in the water.</p>
@@ -677,9 +682,9 @@ h1{
               <div class="care-amount" id="amt-swim">$0 / $500</div>
               <div class="care-mini" id="mini-swim">0% supported</div>
             </div>
-          </button>
+          </div>
 
-          <button class="care-choice" data-key="sitter" type="button">
+          <div class="care-choice" data-key="sitter">
             <div class="care-left">
               <h3>2 Hours Baby Sitter</h3>
               <p class="care-sub">A little breathing room for rest and reset.</p>
@@ -688,21 +693,8 @@ h1{
               <div class="care-amount" id="amt-sitter">$0 / $500</div>
               <div class="care-mini" id="mini-sitter">0% supported</div>
             </div>
-          </button>
-        </div>
-
-        <div class="care-selected" id="careSelected" aria-live="polite">
-          <div>
-            <span class="muted">Selected:</span> <strong id="selectedLabel">Food Delivery Service</strong>
           </div>
-          <button class="btn primary care-donate" id="careDonateBtn" type="button">
-            Donate to this
-          </button>
         </div>
-
-        <p class="muted" style="margin-top: 10px;">
-          Tip: When you donate on PayPal, you can put your selected category in the note if you want.
-        </p>
       </section>
 
       <section class="card">
