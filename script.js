@@ -28,7 +28,7 @@ const CONFIG = {
   // STEP 2: ADD YOUR AMAZON LINKS - ⚠️ NEEDS CONFIGURATION
   // ==================================================
   
-  amazonRegistryUrl: "https://www.amazon.com/baby-reg/shaquille-james-edwards-catalina-james-edwards-may-2026-tacoma/1SGC46V3JDRGK?ref_=cm_sw_r_cp_ud_dp_JZD11P2FRVSGNJ7CW868",
+  amazonRegistryUrl: "https://www.amazon.com/baby-reg/shaquille-james-edwards-catalina-james-edwards-may-2026-tacoma/1SGC46V3JDRGK?ref_=cm_sw_r_cp_ud_dp_3R8KDJQVE85GCX0YNDWZ",
   diapersUrl: "https://www.amazon.com/registries/gl/guest-view/2U9WHF6U3BOG4?ref_=cm_sw_r_cp_ud_ggr-subnav-share_EGHVSTRQT9896YBMS1ZK",
   wipesUrl: "https://www.amazon.com/registries/gl/guest-view/JD8EZ01T25A?ref_=cm_sw_r_cp_ud_ggr-subnav-share_9G3AQ4A1TXKHQ3Z2J3FY",
   strollerUrl: "https://www.amazon.com/registries/gl/guest-view/3QSXG7V6S27HS?ref_=cm_sw_r_cp_ud_ggr-subnav-share_235K2145TSS9TF85QY9D_1",
