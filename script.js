@@ -28,10 +28,10 @@ const CONFIG = {
   // STEP 2: ADD YOUR AMAZON LINKS - ⚠️ NEEDS CONFIGURATION
   // ==================================================
   
-  amazonRegistryUrl: "PASTE_YOUR_AMAZON_REGISTRY_LINK_HERE",
-  diapersUrl: "PASTE_DIAPERS_LINK_HERE",
-  wipesUrl: "PASTE_WIPES_LINK_HERE",
-  strollerUrl: "PASTE_STROLLER_LINK_HERE",
+  amazonRegistryUrl: "https://www.amazon.com/baby-reg/shaquille-james-edwards-catalina-james-edwards-may-2026-tacoma/1SGC46V3JDRGK?ref_=cm_sw_r_cp_ud_dp_JZD11P2FRVSGNJ7CW868",
+  diapersUrl: "https://www.amazon.com/registries/gl/guest-view/2U9WHF6U3BOG4?ref_=cm_sw_r_cp_ud_ggr-subnav-share_EGHVSTRQT9896YBMS1ZK",
+  wipesUrl: "https://www.amazon.com/registries/gl/guest-view/JD8EZ01T25A?ref_=cm_sw_r_cp_ud_ggr-subnav-share_9G3AQ4A1TXKHQ3Z2J3FY",
+  strollerUrl: "https://www.amazon.com/baby-reg/shaquille-james-edwards-catalina-james-edwards-may-2026-tacoma/1SGC46V3JDRGK?ref_=cm_sw_r_cp_ud_dp_JZD11P2FRVSGNJ7CW868",
 
   // ==================================================
   // STEP 3: OVERALL GOAL - ✅ CONFIGURED
