@@ -22,7 +22,7 @@ const CONFIG = {
   // ==================================================
   
   // General PayPal link (fallback if no category selected)
-  paypalGeneralUrl: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GDKUQJJVNX5BS",
+  paypalGeneralUrl: "https://www.paypal.com/ncp/payment/PY9UDWTPUS2KG",
   
   // ==================================================
   // STEP 2: ADD YOUR AMAZON LINKS - ⚠️ NEEDS CONFIGURATION
